@@ -526,7 +526,9 @@ module ActionController
         check_required_ivars
 
         if args.first.is_a?(String) && http_method != 'HEAD'
-          @request.env['RAW_POST_DATA'] = args.shift
+          @request.env['RAW_POST_DATA'] = body = args.shift
+
+          parse_body_to_params(body, args)
         end
 
         parameters, session, flash = args
@@ -647,6 +649,15 @@ module ActionController
       def html_format?(parameters)
         return true unless parameters.is_a?(Hash)
         Mime.fetch(parameters[:format]) { Mime['html'] }.html?
+      end
+
+      def parse_body_to_params(body, args)
+        options = args.extract_options!
+
+        if options[:format] == :json
+          data = ActiveSupport::JSON.decode(body)
+          args << options.merge(data)
+        end
       end
     end
 

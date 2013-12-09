@@ -183,6 +183,11 @@ XML
     assert_equal("{\"id\"=>\"1\", \"controller\"=>\"test_case_test/test\", \"action\"=>\"test_params\"}", @response.body)
   end
 
+  def test_document_body_gets_parsed_to_params
+    post :test_params, {:id => 1}.to_json, :format => :json
+    assert_equal({"format"=>"json", "id"=>"1", "controller"=>"test_case_test/test", "action"=>"test_params"}, @controller.params)
+  end
+
   def test_document_body_with_post
     post :render_body, "document body"
     assert_equal "document body", @response.body
